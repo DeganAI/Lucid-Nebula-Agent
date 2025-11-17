@@ -13,6 +13,8 @@ export interface PaymentRequirementOptions {
 
 /**
  * Middleware to require x402 payment for an endpoint
+ * IMPORTANT: This should ONLY be applied to POST routes
+ * GET routes should handle 402 responses themselves
  */
 export function requirePayment(options: PaymentRequirementOptions) {
   return async (req: X402Request, res: Response, next: NextFunction) => {
@@ -79,20 +81,26 @@ export function requirePayment(options: PaymentRequirementOptions) {
  * Send 402 Payment Required response with x402 details
  */
 function send402Response(res: Response, options: PaymentRequirementOptions, resource: string) {
-  // Convert dollar amount to USDC micro units (6 decimals)
   const microAmount = Math.floor(options.amount * 1_000_000).toString();
+  const protocol = 'https';
+  const fullUrl = resource.includes('://') ? resource : `${protocol}://lucid-nebula-agent-production.up.railway.app${resource}`;
   
   res.status(402).json({
-    error: 'Tribute Required',
-    message: options.description,
-    paymentRequirement: {
-      maxAmountRequired: microAmount,
-      resource: resource,
-      payTo: CONFIG.wallets.base.address,
-      asset: CONFIG.x402.usdcAddress,
-      network: CONFIG.network.name,
-      scheme: 'eip3009',
-    },
+    x402Version: 1,
+    error: "Payment Required",
+    accepts: [
+      {
+        scheme: "exact",
+        network: "base",
+        maxAmountRequired: microAmount,
+        resource: fullUrl,
+        description: options.description,
+        mimeType: "application/json",
+        payTo: CONFIG.wallets.base.address,
+        maxTimeoutSeconds: 120,
+        asset: CONFIG.x402.usdcAddress,
+      }
+    ]
   });
 }
 
@@ -101,14 +109,24 @@ function send402Response(res: Response, options: PaymentRequirementOptions, reso
  */
 function buildPaymentRequirement(options: PaymentRequirementOptions, resource: string) {
   const microAmount = Math.floor(options.amount * 1_000_000).toString();
+  const protocol = 'https';
+  const fullUrl = resource.includes('://') ? resource : `${protocol}://lucid-nebula-agent-production.up.railway.app${resource}`;
   
   return {
-    maxAmountRequired: microAmount,
-    resource: resource,
-    payTo: CONFIG.wallets.base.address,
-    asset: CONFIG.x402.usdcAddress,
-    network: CONFIG.network.name,
-    scheme: 'eip3009',
-    description: options.description,
+    x402Version: 1,
+    error: "Payment Required",
+    accepts: [
+      {
+        scheme: "exact",
+        network: "base",
+        maxAmountRequired: microAmount,
+        resource: fullUrl,
+        description: options.description,
+        mimeType: "application/json",
+        payTo: CONFIG.wallets.base.address,
+        maxTimeoutSeconds: 120,
+        asset: CONFIG.x402.usdcAddress,
+      }
+    ]
   };
 }
