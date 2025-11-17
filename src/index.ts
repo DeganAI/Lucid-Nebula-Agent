@@ -34,6 +34,7 @@ app.get('/', (req, res) => {
   <meta property="og:title" content="${CONFIG.agent.name}">
   <meta property="og:description" content="Conjure verifiable digital dreams on Base L2">
   <meta property="og:image" content="/og-image.png">
+  <link rel="icon" type="image/png" href="/favicon.ico">
   <style>
     * {
       margin: 0;
@@ -519,19 +520,22 @@ app.get('/', (req, res) => {
   `);
 });
 
-// Favicon
+// Favicon - PNG format with proper caching
 app.get('/favicon.ico', (req, res) => {
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  // Create a simple 16x16 purple-teal gradient favicon
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
     <defs>
       <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
         <stop offset="0%" style="stop-color:#9d4edd;stop-opacity:1" />
         <stop offset="100%" style="stop-color:#00ff9f;stop-opacity:1" />
       </linearGradient>
     </defs>
-    <rect width="100" height="100" fill="url(#grad)"/>
-    <text x="50" y="75" font-size="70" text-anchor="middle" fill="#fff">🦙</text>
+    <rect width="32" height="32" fill="url(#grad)" rx="4"/>
+    <text x="16" y="24" font-size="20" text-anchor="middle" fill="#fff">🦙</text>
   </svg>`;
+  
   res.setHeader('Content-Type', 'image/svg+xml');
+  res.setHeader('Cache-Control', 'public, max-age=31536000');
   res.send(svg);
 });
 
@@ -569,7 +573,7 @@ app.get('/health', (req, res) => {
 app.get('/api/status', statusHandler);
 app.get('/api/verify', verifyHandler);
 
-// Conjure endpoint - GET returns 402, POST requires payment
+// Conjure endpoint - GET returns 402 info, POST requires payment
 app.get('/api/conjure', conjureInfoHandler);
 app.post(
   '/api/conjure',
@@ -580,7 +584,7 @@ app.post(
   conjureHandler
 );
 
-// Verify artifact endpoint - GET returns 402, POST requires payment
+// Verify artifact endpoint - GET returns 402 info, POST requires payment
 app.get('/api/verify-artifact', verifyArtifactInfoHandler);
 app.post(
   '/api/verify-artifact',
