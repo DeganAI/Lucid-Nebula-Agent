@@ -21,7 +21,7 @@ app.use((req, res, next) => {
   next();
 });
 
-// Root endpoint - ENHANCED cyberpunk llama landing page
+// Root endpoint - ENHANCED cyberpunk llama landing page WITH SCROLLING FIXED
 app.get('/', (req, res) => {
   res.send(`
 <!DOCTYPE html>
@@ -42,6 +42,10 @@ app.get('/', (req, res) => {
       box-sizing: border-box;
     }
     
+    html {
+      scroll-behavior: smooth;
+    }
+    
     @keyframes float {
       0%, 100% { transform: translateY(0px); }
       50% { transform: translateY(-20px); }
@@ -60,20 +64,17 @@ app.get('/', (req, res) => {
     body {
       font-family: 'Courier New', monospace;
       background: linear-gradient(135deg, #0a0a0a 0%, #1a0a2e 50%, #16213e 100%);
+      background-attachment: fixed;
       color: #00ff9f;
       min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: 20px;
+      padding: 20px 20px 60px 20px;
       position: relative;
-      overflow: hidden;
+      overflow-x: hidden;
     }
     
     body::before {
       content: '';
-      position: absolute;
+      position: fixed;
       top: 0;
       left: 0;
       right: 0;
@@ -88,6 +89,7 @@ app.get('/', (req, res) => {
         );
       pointer-events: none;
       animation: scanlines 8s linear infinite;
+      z-index: 0;
     }
     
     @keyframes scanlines {
@@ -96,16 +98,19 @@ app.get('/', (req, res) => {
     }
     
     .llama-float {
-      position: absolute;
+      position: fixed;
       top: 20px;
       right: 20px;
       font-size: 3em;
       animation: float 3s ease-in-out infinite;
       filter: drop-shadow(0 0 20px #ff006e);
+      z-index: 100;
     }
     
     .container {
       max-width: 1200px;
+      width: 100%;
+      margin: 40px auto;
       background: rgba(10, 10, 10, 0.9);
       border: 3px solid #00ff9f;
       border-radius: 15px;
@@ -347,6 +352,7 @@ app.get('/', (req, res) => {
       text-align: center;
       color: #9d4edd;
       font-size: 1em;
+      padding-bottom: 40px;
     }
     
     footer p {
@@ -375,6 +381,35 @@ app.get('/', (req, res) => {
       91% { transform: translate(-2px, 2px); }
       92% { transform: translate(2px, -2px); }
       93% { transform: translate(-2px, 2px); }
+    }
+    
+    /* Mobile responsiveness */
+    @media (max-width: 768px) {
+      .container {
+        padding: 30px 20px;
+      }
+      
+      h1 {
+        font-size: 2em;
+      }
+      
+      .llama-float {
+        font-size: 2em;
+        top: 10px;
+        right: 10px;
+      }
+      
+      .ascii-art {
+        font-size: 0.5em;
+      }
+      
+      .pricing {
+        grid-template-columns: 1fr;
+      }
+      
+      .features {
+        grid-template-columns: 1fr;
+      }
     }
   </style>
 </head>
