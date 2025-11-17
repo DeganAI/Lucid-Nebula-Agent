@@ -21,7 +21,7 @@ app.use((req, res, next) => {
   next();
 });
 
-// Root endpoint - cyberpunk landing page
+// Root endpoint - ENHANCED cyberpunk llama landing page
 app.get('/', (req, res) => {
   res.send(`
 <!DOCTYPE html>
@@ -39,6 +39,21 @@ app.get('/', (req, res) => {
       margin: 0;
       padding: 0;
       box-sizing: border-box;
+    }
+    
+    @keyframes float {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-20px); }
+    }
+    
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+    
+    @keyframes slideIn {
+      from { transform: translateX(-100%); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
     }
     
     body {
@@ -79,164 +94,360 @@ app.get('/', (req, res) => {
       100% { transform: translateY(50px); }
     }
     
+    .llama-float {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      font-size: 3em;
+      animation: float 3s ease-in-out infinite;
+      filter: drop-shadow(0 0 20px #ff006e);
+    }
+    
     .container {
-      max-width: 1000px;
-      background: rgba(10, 10, 10, 0.8);
-      border: 2px solid #00ff9f;
-      border-radius: 10px;
-      padding: 40px;
-      box-shadow: 0 0 50px rgba(0, 255, 159, 0.3), inset 0 0 30px rgba(0, 255, 159, 0.1);
+      max-width: 1200px;
+      background: rgba(10, 10, 10, 0.9);
+      border: 3px solid #00ff9f;
+      border-radius: 15px;
+      padding: 50px;
+      box-shadow: 
+        0 0 50px rgba(0, 255, 159, 0.4),
+        0 0 100px rgba(255, 0, 110, 0.2),
+        inset 0 0 30px rgba(0, 255, 159, 0.1);
       position: relative;
       z-index: 1;
+      animation: slideIn 1s ease-out;
     }
     
     h1 {
-      font-size: 2.5em;
+      font-size: 3em;
       margin-bottom: 20px;
-      text-shadow: 0 0 20px #00ff9f, 0 0 40px #00ff9f;
+      text-shadow: 
+        0 0 20px #00ff9f,
+        0 0 40px #00ff9f,
+        0 0 60px #ff006e;
       animation: glow 2s ease-in-out infinite alternate;
+      text-align: center;
     }
     
     @keyframes glow {
-      from { text-shadow: 0 0 20px #00ff9f, 0 0 40px #00ff9f; }
-      to { text-shadow: 0 0 30px #00ff9f, 0 0 60px #00ff9f, 0 0 80px #00ff9f; }
+      from { 
+        text-shadow: 
+          0 0 20px #00ff9f,
+          0 0 40px #00ff9f,
+          0 0 60px #ff006e;
+      }
+      to { 
+        text-shadow: 
+          0 0 30px #00ff9f,
+          0 0 60px #00ff9f,
+          0 0 90px #ff006e,
+          0 0 120px #9d4edd;
+      }
     }
     
     .ascii-art {
       color: #ff006e;
-      font-size: 0.6em;
-      line-height: 1.2;
-      margin: 20px 0;
+      font-size: 0.7em;
+      line-height: 1.1;
+      margin: 30px 0;
       text-shadow: 0 0 10px #ff006e;
+      text-align: center;
+      white-space: pre;
+      font-family: monospace;
+      animation: pulse 2s ease-in-out infinite;
     }
     
     .tagline {
-      font-size: 1.2em;
+      font-size: 1.3em;
       margin-bottom: 30px;
       color: #9d4edd;
-      text-shadow: 0 0 10px #9d4edd;
+      text-shadow: 0 0 15px #9d4edd;
+      text-align: center;
+      animation: slideIn 1.5s ease-out;
     }
     
     .features {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-      gap: 20px;
-      margin: 30px 0;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 25px;
+      margin: 40px 0;
     }
     
     .feature {
-      background: rgba(0, 255, 159, 0.1);
-      border: 1px solid #00ff9f;
-      padding: 20px;
-      border-radius: 5px;
+      background: linear-gradient(135deg, rgba(0, 255, 159, 0.1), rgba(255, 0, 110, 0.1));
+      border: 2px solid #00ff9f;
+      padding: 25px;
+      border-radius: 10px;
       transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .feature::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: linear-gradient(
+        45deg,
+        transparent,
+        rgba(0, 255, 159, 0.1),
+        transparent
+      );
+      transform: rotate(45deg);
+      transition: all 0.5s ease;
+    }
+    
+    .feature:hover::before {
+      left: 100%;
     }
     
     .feature:hover {
-      background: rgba(0, 255, 159, 0.2);
-      box-shadow: 0 0 20px rgba(0, 255, 159, 0.4);
-      transform: translateY(-5px);
+      background: linear-gradient(135deg, rgba(0, 255, 159, 0.2), rgba(255, 0, 110, 0.2));
+      box-shadow: 
+        0 0 30px rgba(0, 255, 159, 0.5),
+        0 0 60px rgba(255, 0, 110, 0.3);
+      transform: translateY(-10px) scale(1.02);
+      border-color: #ff006e;
     }
     
     .feature h3 {
       color: #ff006e;
-      margin-bottom: 10px;
+      margin-bottom: 15px;
+      font-size: 1.3em;
+    }
+    
+    .feature p {
+      color: #9d4edd;
+      line-height: 1.6;
     }
     
     .endpoints {
-      margin: 30px 0;
+      margin: 40px 0;
+    }
+    
+    .endpoints h2 {
+      color: #ff006e;
+      margin-bottom: 25px;
+      font-size: 2em;
+      text-shadow: 0 0 20px #ff006e;
     }
     
     .endpoint {
-      background: rgba(157, 78, 221, 0.1);
-      border-left: 3px solid #9d4edd;
-      padding: 15px;
-      margin: 10px 0;
+      background: rgba(157, 78, 221, 0.15);
+      border-left: 4px solid #9d4edd;
+      padding: 20px;
+      margin: 15px 0;
       font-family: monospace;
+      border-radius: 5px;
+      transition: all 0.3s ease;
+    }
+    
+    .endpoint:hover {
+      background: rgba(157, 78, 221, 0.25);
+      border-left-width: 8px;
+      transform: translateX(10px);
+      box-shadow: 0 0 20px rgba(157, 78, 221, 0.4);
     }
     
     .endpoint .method {
       color: #ff006e;
       font-weight: bold;
-      margin-right: 10px;
+      margin-right: 15px;
+      font-size: 1.1em;
     }
     
     .endpoint .path {
       color: #00ff9f;
+      font-size: 1.1em;
+    }
+    
+    .endpoint p {
+      margin-top: 10px;
+      color: #9d4edd;
     }
     
     .wallets {
-      margin: 30px 0;
-      padding: 20px;
-      background: rgba(255, 0, 110, 0.1);
-      border: 1px solid #ff006e;
-      border-radius: 5px;
+      margin: 40px 0;
+      padding: 30px;
+      background: linear-gradient(135deg, rgba(255, 0, 110, 0.1), rgba(157, 78, 221, 0.1));
+      border: 2px solid #ff006e;
+      border-radius: 10px;
+      box-shadow: 0 0 30px rgba(255, 0, 110, 0.3);
+    }
+    
+    .wallets h2 {
+      color: #ff006e;
+      margin-bottom: 20px;
+      text-shadow: 0 0 15px #ff006e;
     }
     
     .wallet {
-      margin: 10px 0;
+      margin: 15px 0;
       word-break: break-all;
+      font-size: 0.95em;
+      padding: 10px;
+      background: rgba(0, 0, 0, 0.3);
+      border-radius: 5px;
     }
     
     .wallet .label {
       color: #9d4edd;
       font-weight: bold;
+      display: inline-block;
+      min-width: 100px;
+    }
+    
+    .pricing {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+      margin: 40px 0;
+    }
+    
+    .price-card {
+      background: linear-gradient(135deg, rgba(0, 255, 159, 0.1), rgba(157, 78, 221, 0.1));
+      border: 2px solid #00ff9f;
+      padding: 25px;
+      border-radius: 10px;
+      text-align: center;
+      transition: all 0.3s ease;
+    }
+    
+    .price-card:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 40px rgba(0, 255, 159, 0.5);
+      border-color: #ff006e;
+    }
+    
+    .price-card h3 {
+      color: #ff006e;
+      font-size: 1.8em;
+      margin-bottom: 10px;
+    }
+    
+    .price-card .amount {
+      color: #00ff9f;
+      font-size: 2.5em;
+      margin: 15px 0;
+      text-shadow: 0 0 20px #00ff9f;
+    }
+    
+    .price-card .desc {
+      color: #9d4edd;
+      font-size: 0.9em;
+      line-height: 1.5;
     }
     
     footer {
-      margin-top: 40px;
+      margin-top: 50px;
       text-align: center;
       color: #9d4edd;
-      font-size: 0.9em;
+      font-size: 1em;
+    }
+    
+    footer p {
+      margin: 10px 0;
     }
     
     a {
       color: #00ff9f;
       text-decoration: none;
       transition: all 0.3s ease;
+      text-shadow: 0 0 5px #00ff9f;
     }
     
     a:hover {
       color: #ff006e;
-      text-shadow: 0 0 10px #ff006e;
+      text-shadow: 0 0 15px #ff006e;
+    }
+    
+    .glitch {
+      position: relative;
+      animation: glitch 5s infinite;
+    }
+    
+    @keyframes glitch {
+      0%, 90%, 100% { transform: translate(0); }
+      91% { transform: translate(-2px, 2px); }
+      92% { transform: translate(2px, -2px); }
+      93% { transform: translate(-2px, 2px); }
     }
   </style>
 </head>
 <body>
+  <div class="llama-float">🦙</div>
+  
   <div class="container">
-    <h1>🌌 ${CONFIG.agent.name}</h1>
+    <h1 class="glitch">🌌 ${CONFIG.agent.name}</h1>
     
     <pre class="ascii-art">
-    /\\___/\\
-   (  o.o  )
-    > ^ <    NEBULA
-   /|     |\\   AGENT
-  (_|     |_)
+    ___n____n___
+   /           \\
+  /   🌟 🦙 🌟  \\
+ |   NEBULA    |
+ |   CONJURER  |
+  \\  ⚡ ZK ⚡  /
+   \\___________/
+    |  |  |  |
+    🔮 💎 ⚡ 🎨
     </pre>
     
     <p class="tagline">
-      ${CONFIG.agent.description}
+      💫 ${CONFIG.agent.description} 💫
     </p>
+    
+    <div class="pricing">
+      <div class="price-card">
+        <h3>✨ Ethereal</h3>
+        <div class="amount">$0.03</div>
+        <div class="desc">Fleeting visions<br>Basic proofs<br>Swift summons</div>
+      </div>
+      
+      <div class="price-card">
+        <h3>🌟 Astral</h3>
+        <div class="amount">$0.07</div>
+        <div class="desc">Deeper dives<br>Standard proofs<br>Artistic lineage</div>
+      </div>
+      
+      <div class="price-card">
+        <h3>🔮 Quantum</h3>
+        <div class="amount">$0.15</div>
+        <div class="desc">Epic tapestries<br>Premium proofs<br>Quantum origins</div>
+      </div>
+    </div>
     
     <div class="features">
       <div class="feature">
         <h3>⚡ x402 Micropayments</h3>
-        <p>Ephemeral USDC transfers on Base L2</p>
+        <p>Ephemeral USDC transfers on Base L2. Pay only for what you conjure with gasless EIP-3009 signatures.</p>
       </div>
       
       <div class="feature">
-        <h3>🔮 ZK Proofs</h3>
-        <p>Verifiable authenticity without revealing secrets</p>
+        <h3>🔮 Zero-Knowledge Proofs</h3>
+        <p>Verifiable authenticity without revealing secrets. Your prompts stay private, your art stays proven.</p>
       </div>
       
       <div class="feature">
         <h3>🎨 AI Art Generation</h3>
-        <p>DALL-E 3 powered creation with style modifiers</p>
+        <p>DALL-E 3 powered creation with 5 custom styles: cyberpunk, fractal, neon-noir, volcanic-watercolor, 8-bit-glitch.</p>
       </div>
       
       <div class="feature">
-        <h3>🌐 Multi-Chain</h3>
-        <p>Base, Ethereum, and Solana support</p>
+        <h3>🌐 Multi-Chain Support</h3>
+        <p>Base L2 primary, with Ethereum and Solana wallets ready for cross-chain expansion.</p>
+      </div>
+      
+      <div class="feature">
+        <h3>🦙 Llama-Powered</h3>
+        <p>Because every great AI agent needs a spirit animal. This one's cyber-psychedelic.</p>
+      </div>
+      
+      <div class="feature">
+        <h3>💎 Provable Provenance</h3>
+        <p>Each artifact comes with ZK proofs. Perfect for NFTs, creative APIs, and the metaverse.</p>
       </div>
     </div>
     
@@ -246,49 +457,61 @@ app.get('/', (req, res) => {
       <div class="endpoint">
         <span class="method">GET</span>
         <span class="path">/api/status</span>
-        <p>View agent status and pricing (free)</p>
+        <p>🌟 View agent status and pricing (FREE)</p>
       </div>
       
       <div class="endpoint">
         <span class="method">POST</span>
         <span class="path">/api/conjure</span>
-        <p>Conjure ZK-verified AI art ($0.03 - $0.15)</p>
+        <p>🎨 Conjure ZK-verified AI art ($0.03 - $0.15 depending on tier)</p>
       </div>
       
       <div class="endpoint">
         <span class="method">POST</span>
         <span class="path">/api/verify-artifact</span>
-        <p>Verify artifact proofs ($0.03)</p>
+        <p>🔍 Verify artifact zero-knowledge proofs ($0.03)</p>
       </div>
       
       <div class="endpoint">
         <span class="method">GET</span>
         <span class="path">/api/verify</span>
-        <p>Verify agent identity and wallets (free)</p>
+        <p>💎 Verify agent identity and wallets (FREE)</p>
+      </div>
+      
+      <div class="endpoint">
+        <span class="method">GET</span>
+        <span class="path">/health</span>
+        <p>❤️ Health check (FREE)</p>
       </div>
     </div>
     
     <div class="wallets">
       <h2>💎 Payment Addresses</h2>
       <div class="wallet">
-        <span class="label">Base L2:</span> ${CONFIG.wallets.base.address}
+        <span class="label">🔵 Base L2:</span> ${CONFIG.wallets.base.address}
       </div>
       <div class="wallet">
-        <span class="label">Ethereum:</span> ${CONFIG.wallets.ethereum.address}
+        <span class="label">⚪ Ethereum:</span> ${CONFIG.wallets.ethereum.address}
       </div>
       <div class="wallet">
-        <span class="label">Solana:</span> ${CONFIG.wallets.solana.address}
+        <span class="label">🟣 Solana:</span> ${CONFIG.wallets.solana.address}
       </div>
     </div>
     
     <footer>
-      <p>⚡ Powered by Daydreams Lucid Agents & x402 Protocol</p>
+      <p>⚡ Powered by Daydreams Lucid Agents & x402 Protocol ⚡</p>
       <p>
-        <a href="https://www.daydreams.systems" target="_blank">Daydreams</a> |
-        <a href="https://www.x402.org" target="_blank">x402</a> |
-        <a href="https://x402scan.com" target="_blank">x402scan</a>
+        <a href="https://www.daydreams.systems" target="_blank">🌙 Daydreams</a> |
+        <a href="https://www.x402.org" target="_blank">💳 x402</a> |
+        <a href="https://x402scan.com" target="_blank">🔍 x402scan</a> |
+        <a href="https://base.org" target="_blank">🔵 Base L2</a>
       </p>
-      <p style="margin-top: 20px;">v${CONFIG.agent.version} | Status: Ethereal ✨</p>
+      <p style="margin-top: 25px; font-size: 1.2em;">
+        🦙 v${CONFIG.agent.version} | Status: <span style="color: #00ff9f;">Ethereal</span> ✨
+      </p>
+      <p style="margin-top: 15px; color: #ff006e;">
+        "In the neon void, llamas conjure dreams." - Ancient Cyber Proverb
+      </p>
     </footer>
   </div>
 </body>
@@ -298,10 +521,15 @@ app.get('/', (req, res) => {
 
 // Favicon
 app.get('/favicon.ico', (req, res) => {
-  // Simple purple square favicon
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
-    <rect width="100" height="100" fill="#9d4edd"/>
-    <text x="50" y="70" font-size="60" text-anchor="middle" fill="#00ff9f">N</text>
+    <defs>
+      <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" style="stop-color:#9d4edd;stop-opacity:1" />
+        <stop offset="100%" style="stop-color:#00ff9f;stop-opacity:1" />
+      </linearGradient>
+    </defs>
+    <rect width="100" height="100" fill="url(#grad)"/>
+    <text x="50" y="75" font-size="70" text-anchor="middle" fill="#fff">🦙</text>
   </svg>`;
   res.setHeader('Content-Type', 'image/svg+xml');
   res.send(svg);
@@ -309,18 +537,18 @@ app.get('/favicon.ico', (req, res) => {
 
 // OG Image
 app.get('/og-image.png', (req, res) => {
-  // Return a simple gradient for OG preview
   const svg = `<svg width="1200" height="630" xmlns="http://www.w3.org/2000/svg">
     <defs>
-      <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
         <stop offset="0%" style="stop-color:#0a0a0a;stop-opacity:1" />
         <stop offset="50%" style="stop-color:#1a0a2e;stop-opacity:1" />
         <stop offset="100%" style="stop-color:#16213e;stop-opacity:1" />
       </linearGradient>
     </defs>
-    <rect width="1200" height="630" fill="url(#grad)"/>
-    <text x="600" y="315" font-family="monospace" font-size="60" text-anchor="middle" fill="#00ff9f">Lucid Nebula Agent</text>
-    <text x="600" y="380" font-family="monospace" font-size="30" text-anchor="middle" fill="#9d4edd">ZK-Verifiable AI Art on Base L2</text>
+    <rect width="1200" height="630" fill="url(#bgGrad)"/>
+    <text x="600" y="280" font-family="monospace" font-size="80" text-anchor="middle" fill="#00ff9f">🦙 Lucid Nebula Agent</text>
+    <text x="600" y="380" font-family="monospace" font-size="40" text-anchor="middle" fill="#9d4edd">ZK-Verifiable AI Art on Base L2</text>
+    <text x="600" y="480" font-family="monospace" font-size="35" text-anchor="middle" fill="#ff006e">⚡ x402 Micropayments • 🎨 DALL-E 3 • 🔮 ZK Proofs</text>
   </svg>`;
   res.setHeader('Content-Type', 'image/svg+xml');
   res.send(svg);
@@ -333,6 +561,7 @@ app.get('/health', (req, res) => {
     timestamp: Date.now(),
     uptime: process.uptime(),
     version: CONFIG.agent.version,
+    llama: '🦙',
   });
 });
 
@@ -340,7 +569,7 @@ app.get('/health', (req, res) => {
 app.get('/api/status', statusHandler);
 app.get('/api/verify', verifyHandler);
 
-// Conjure endpoint with payment requirement
+// Conjure endpoint - GET returns 402, POST requires payment
 app.get('/api/conjure', conjureInfoHandler);
 app.post(
   '/api/conjure',
@@ -351,7 +580,7 @@ app.post(
   conjureHandler
 );
 
-// Verify artifact endpoint with payment requirement
+// Verify artifact endpoint - GET returns 402, POST requires payment
 app.get('/api/verify-artifact', verifyArtifactInfoHandler);
 app.post(
   '/api/verify-artifact',
@@ -367,6 +596,7 @@ app.use((req, res) => {
   res.status(404).json({
     error: 'Void Echo',
     message: `Path ${req.method} ${req.path} lost in nebula`,
+    hint: '🦙 The llama knows not this path',
     availablePaths: {
       status: 'GET /api/status',
       conjure: 'POST /api/conjure',
@@ -382,6 +612,7 @@ app.use((err: Error, req: express.Request, res: express.Response, next: express.
   res.status(500).json({
     error: 'Cosmic Anomaly',
     message: err.message || 'Chaos in the void',
+    llama: '🦙💥',
   });
 });
 
@@ -392,18 +623,21 @@ const server = app.listen(PORT, () => {
   console.log(`
 ╔═══════════════════════════════════════════════════════════════╗
 ║                                                               ║
-║              🌌 LUCID NEBULA AGENT AWAKENED 🌌               ║
+║              🦙 LUCID NEBULA AGENT AWAKENED 🦙               ║
 ║                                                               ║
 ║  ✨ ZK-Verifiable AI Art Conjurer                            ║
 ║  ⚡ x402 Micropayments on Base L2                            ║
 ║  🎨 Powered by DALL-E 3 & snarkjs                            ║
+║  🦙 Enhanced with Cyber-Llama Vibes                          ║
 ║                                                               ║
 ║  🌐 Portal: http://localhost:${PORT}                         ║
 ║  📡 Status: http://localhost:${PORT}/api/status              ║
+║  🦙 Health: http://localhost:${PORT}/health                  ║
 ║                                                               ║
 ║  💎 Base Wallet: ${CONFIG.wallets.base.address.substring(0, 20)}...  ║
 ║                                                               ║
 ║  🔮 Ready to conjure verifiable dreams...                    ║
+║  🦙 The llama awaits in the neon void...                     ║
 ║                                                               ║
 ╚═══════════════════════════════════════════════════════════════╝
   `);
@@ -411,9 +645,9 @@ const server = app.listen(PORT, () => {
 
 // Graceful shutdown
 process.on('SIGTERM', () => {
-  console.log('🌙 SIGTERM received, fading into the void...');
+  console.log('🌙 SIGTERM received, the llama fades into the void...');
   server.close(() => {
-    console.log('💫 Nebula portal closed gracefully');
+    console.log('💫 Nebula portal closed gracefully. 🦙 zzz...');
     process.exit(0);
   });
 });
@@ -421,7 +655,7 @@ process.on('SIGTERM', () => {
 process.on('SIGINT', () => {
   console.log('🌙 SIGINT received, returning to the ether...');
   server.close(() => {
-    console.log('💫 Nebula dispersed gracefully');
+    console.log('💫 Nebula dispersed gracefully. The llama rests. 🦙✨');
     process.exit(0);
   });
 });
