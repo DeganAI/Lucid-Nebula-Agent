@@ -106,11 +106,18 @@ class NebulaConjurer {
         response_format: 'url',
       });
       
-      if (!response.data[0]?.url) {
+      // Check if response and data exist
+      if (!response || !response.data || response.data.length === 0) {
+        throw new Error('No response from OpenAI');
+      }
+      
+      const imageUrl = response.data[0]?.url;
+      
+      if (!imageUrl) {
         throw new Error('No image URL returned from OpenAI');
       }
       
-      return response.data[0].url;
+      return imageUrl;
       
     } catch (error: any) {
       console.error('OpenAI image generation error:', error);
