@@ -15,7 +15,6 @@ const ConjureRequestSchema = z.object({
  */
 export async function conjureHandler(req: X402Request, res: Response) {
   try {
-    // Validate request body
     const validation = ConjureRequestSchema.safeParse(req.body);
     
     if (!validation.success) {
@@ -28,54 +27,70 @@ export async function conjureHandler(req: X402Request, res: Response) {
     
     const { prompt, style, tier } = validation.data;
     
-    // Verify payment exists (middleware should have set this)
     if (!req.x402Payment?.verified) {
       return res.status(500).json({
-        error: 'Void Anomaly',
-        message: 'Tribute state shattered',
+        error: 'Internal Server Error',
+        message: 'Payment verification state invalid',
       });
     }
     
-    console.log(`🌌 Conjuring for ${req.x402Payment.payer} (style: ${style}, tier: ${tier})`);
+    console.log(`🌌 Conjuring for ${req.x402Payment.payer}`);
+    console.log(`   Style: ${style}`);
+    console.log(`   Tier: ${tier}`);
+    console.log(`   Payment: ${req.x402Payment.amount} USDC`);
     
-    // Create conjure request
     const conjureRequest: ConjureRequest = {
       prompt,
       style,
       tier,
     };
     
-    // Generate the artifact
     const result = await nebulaConjurer.conjure(conjureRequest);
     
-    // Build response
+    if (!result.success) {
+      return res.status(500).json({
+        error: 'Conjure Failed',
+        message: 'Failed to generate artifact',
+        executionTime: result.conjureTime,
+      });
+    }
+    
     const response = {
-      success: result.success,
+      success: true,
       artifact: result.artifact,
-      proof: result.proof,
-      publicSignals: result.publicSignals,
-      conjureTime: result.conjureTime,
-      artifactId: result.artifactId,
-      tier: result.tier,
+      metadata: {
+        artifactId: result.artifactId,
+        tier: result.tier,
+        style: style,
+        executionTime: result.conjureTime,
+        conjuredAt: Date.now(),
+      },
+      proof: {
+        zkProof: result.proof,
+        publicSignals: result.publicSignals,
+      },
       payment: {
         amount: req.x402Payment.amount,
+        amountUSDC: CONFIG.pricingMicro[tier],
         payer: req.x402Payment.payer,
         transactionHash: req.x402Payment.transactionHash,
         network: CONFIG.network.name,
         token: CONFIG.x402.paymentToken,
       },
-      timestamp: Date.now(),
+      result: {
+        message: 'Artifact conjured successfully',
+        imageUrl: result.artifact,
+      },
     };
     
-    console.log(`✅ Artifact ${result.artifactId} born in ${result.conjureTime}ms`);
+    console.log(`✅ Artifact ${result.artifactId} conjured in ${result.conjureTime}ms`);
     
     res.json(response);
-    
   } catch (error: any) {
-    console.error('Conjure rift:', error);
+    console.error('Conjure endpoint error:', error);
     res.status(500).json({
-      error: 'Conjure Failed',
-      message: error.message || 'Chaos in creation',
+      error: 'Internal Server Error',
+      message: error.message || 'An unexpected error occurred',
     });
   }
 }
@@ -84,15 +99,19 @@ export async function conjureHandler(req: X402Request, res: Response) {
  * Handle GET /api/conjure - return x402scan-compatible 402 response
  */
 export function conjureInfoHandler(req: X402Request, res: Response) {
+  const protocol = req.protocol === 'http' && req.get('host')?.includes('railway.app') ? 'https' : req.protocol;
+  const fullUrl = `${protocol}://${req.get('host')}${req.originalUrl}`;
+  
   res.status(402).json({
     x402Version: 1,
+    error: "Payment Required",
     accepts: [
       {
         scheme: "exact",
         network: "base",
         maxAmountRequired: CONFIG.pricingMicro.astral,
-        resource: `${req.protocol}://${req.get('host')}/api/conjure`,
-        description: "Conjure verifiable art in the nebula",
+        resource: fullUrl,
+        description: "Conjure ZK-verifiable AI art with DALL-E 3",
         mimeType: "application/json",
         payTo: CONFIG.wallets.base.address,
         maxTimeoutSeconds: 120,
@@ -106,52 +125,40 @@ export function conjureInfoHandler(req: X402Request, res: Response) {
               prompt: {
                 type: "string",
                 required: true,
-                description: "Vision whisper - the prompt for your art (1-2000 characters)",
+                description: "Your art prompt (1-2000 characters)",
               },
               style: {
                 type: "string",
                 required: true,
-                description: "Artistic veil to apply",
-                enum: CONFIG.styles,
+                description: "Artistic style to apply",
+                enum: ["cyberpunk", "fractal", "neon-noir", "volcanic-watercolor", "8-bit-glitch"],
               },
               tier: {
                 type: "string",
                 required: true,
-                description: "Essence depth - determines quality and proof complexity",
+                description: "Quality tier (ethereal=$0.03, astral=$0.07, quantum=$0.15)",
                 enum: ["ethereal", "astral", "quantum"],
               },
             },
           },
           output: {
-            type: "object",
-            properties: {
-              success: {
-                type: "boolean",
-                description: "Creation status",
+            success: { type: "boolean" },
+            artifact: { type: "string", description: "Generated image URL" },
+            metadata: {
+              type: "object",
+              properties: {
+                artifactId: { type: "string" },
+                tier: { type: "string" },
+                style: { type: "string" },
+                executionTime: { type: "number" },
+                conjuredAt: { type: "number" },
               },
-              artifact: {
-                type: "string",
-                description: "Image URL",
-              },
-              proof: {
-                type: "object",
-                description: "ZK seal for verification",
-              },
-              publicSignals: {
-                type: "array",
-                description: "Visible echoes for proof validation",
-              },
-              conjureTime: {
-                type: "number",
-                description: "Birth duration in milliseconds",
-              },
-              artifactId: {
-                type: "string",
-                description: "Unique artifact identifier",
-              },
-              payment: {
-                type: "object",
-                description: "Payment confirmation details",
+            },
+            proof: {
+              type: "object",
+              properties: {
+                zkProof: { type: "object" },
+                publicSignals: { type: "array" },
               },
             },
           },
