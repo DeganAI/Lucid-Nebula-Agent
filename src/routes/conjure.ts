@@ -81,90 +81,79 @@ export async function conjureHandler(req: X402Request, res: Response) {
 }
 
 /**
- * Handle GET /api/conjure - return x402 payment info
+ * Handle GET /api/conjure - return x402scan-compatible 402 response
  */
 export function conjureInfoHandler(req: X402Request, res: Response) {
   res.status(402).json({
     x402Version: 1,
     accepts: [
       {
-        scheme: 'eip3009',
-        network: CONFIG.network.name,
+        scheme: "exact",
+        network: "base",
         maxAmountRequired: CONFIG.pricingMicro.astral,
-        resource: 'https://lucid-nebula-agent-production.up.railway.app/api/conjure',
-        description: 'Conjure verifiable art in the nebula',
-        mimeType: 'application/json',
+        resource: `${req.protocol}://${req.get('host')}/api/conjure`,
+        description: "Conjure verifiable art in the nebula",
+        mimeType: "application/json",
         payTo: CONFIG.wallets.base.address,
         maxTimeoutSeconds: 120,
         asset: CONFIG.x402.usdcAddress,
         outputSchema: {
           input: {
-            type: 'http',
-            method: 'POST',
-            bodyType: 'json',
+            type: "http",
+            method: "POST",
+            bodyType: "json",
             bodyFields: {
               prompt: {
-                type: 'string',
+                type: "string",
                 required: true,
-                description: 'Vision whisper - the prompt for your art',
-                maxLength: 2000,
+                description: "Vision whisper - the prompt for your art (1-2000 characters)",
               },
               style: {
-                type: 'string',
+                type: "string",
                 required: true,
-                description: 'Artistic veil to apply',
+                description: "Artistic veil to apply",
                 enum: CONFIG.styles,
               },
               tier: {
-                type: 'string',
+                type: "string",
                 required: true,
-                description: 'Essence depth - determines quality and proof complexity',
-                enum: ['ethereal', 'astral', 'quantum'],
+                description: "Essence depth - determines quality and proof complexity",
+                enum: ["ethereal", "astral", "quantum"],
               },
             },
           },
           output: {
-            type: 'object',
+            type: "object",
             properties: {
               success: {
-                type: 'boolean',
-                description: 'Creation status',
+                type: "boolean",
+                description: "Creation status",
               },
               artifact: {
-                type: 'string',
-                description: 'Image portal URL',
+                type: "string",
+                description: "Image URL",
               },
               proof: {
-                type: 'object',
-                description: 'ZK seal for verification',
+                type: "object",
+                description: "ZK seal for verification",
               },
               publicSignals: {
-                type: 'array',
-                description: 'Visible echoes for proof validation',
+                type: "array",
+                description: "Visible echoes for proof validation",
               },
               conjureTime: {
-                type: 'number',
-                description: 'Birth duration in milliseconds',
+                type: "number",
+                description: "Birth duration in milliseconds",
               },
               artifactId: {
-                type: 'string',
-                description: 'Unique artifact identifier',
+                type: "string",
+                description: "Unique artifact identifier",
+              },
+              payment: {
+                type: "object",
+                description: "Payment confirmation details",
               },
             },
-          },
-        },
-        pricing: {
-          ethereal: {
-            amount: CONFIG.pricingMicro.ethereal,
-            description: CONFIG.tiers.ethereal.description,
-          },
-          astral: {
-            amount: CONFIG.pricingMicro.astral,
-            description: CONFIG.tiers.astral.description,
-          },
-          quantum: {
-            amount: CONFIG.pricingMicro.quantum,
-            description: CONFIG.tiers.quantum.description,
           },
         },
       },
