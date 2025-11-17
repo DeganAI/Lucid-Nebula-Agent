@@ -10,9 +10,6 @@ const ConjureRequestSchema = z.object({
   tier: z.enum(['ethereal', 'astral', 'quantum']),
 });
 
-/**
- * Handle POST /api/conjure with payment
- */
 export async function conjureHandler(req: X402Request, res: Response) {
   try {
     const validation = ConjureRequestSchema.safeParse(req.body);
@@ -95,9 +92,6 @@ export async function conjureHandler(req: X402Request, res: Response) {
   }
 }
 
-/**
- * Handle GET /api/conjure - return x402scan-compatible 402 response
- */
 export function conjureInfoHandler(req: X402Request, res: Response) {
   const protocol = req.protocol === 'http' && req.get('host')?.includes('railway.app') ? 'https' : req.protocol;
   const fullUrl = `${protocol}://${req.get('host')}${req.originalUrl}`;
