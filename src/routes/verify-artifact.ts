@@ -19,7 +19,6 @@ const VerifyArtifactSchema = z.object({
  */
 export async function verifyArtifactHandler(req: X402Request, res: Response) {
   try {
-    // Validate request body
     const validation = VerifyArtifactSchema.safeParse(req.body);
     
     if (!validation.success) {
@@ -32,113 +31,116 @@ export async function verifyArtifactHandler(req: X402Request, res: Response) {
     
     const { artifactId, proof, publicSignals } = validation.data;
     
-    // Verify payment exists (middleware should have set this)
     if (!req.x402Payment?.verified) {
       return res.status(500).json({
-        error: 'Void Anomaly',
-        message: 'Tribute state shattered',
+        error: 'Internal Server Error',
+        message: 'Payment verification state invalid',
       });
     }
     
     console.log(`🔍 Verifying artifact ${artifactId} for ${req.x402Payment.payer}`);
+    console.log(`   Payment: ${req.x402Payment.amount} USDC`);
     
     const startTime = Date.now();
     
-    // Verify the artifact's proof
     const verified = await nebulaConjurer.verifyArtifact(
       artifactId,
       proof as ZKProof,
       publicSignals
     );
     
-    const conjureTime = Date.now() - startTime;
+    const executionTime = Date.now() - startTime;
     
     const response = {
       success: true,
       verified,
-      conjureTime,
-      artifactId,
+      metadata: {
+        artifactId: artifactId,
+        executionTime: executionTime,
+        verifiedAt: Date.now(),
+      },
       payment: {
         amount: req.x402Payment.amount,
+        amountUSDC: CONFIG.pricingMicro.ethereal,
         payer: req.x402Payment.payer,
         transactionHash: req.x402Payment.transactionHash,
         network: CONFIG.network.name,
         token: CONFIG.x402.paymentToken,
       },
-      timestamp: Date.now(),
+      result: {
+        valid: verified,
+        message: verified 
+          ? 'Proof is valid and verified' 
+          : 'Proof verification failed - invalid proof',
+      },
     };
     
-    console.log(`✅ Artifact ${artifactId} verification: ${verified} (${conjureTime}ms)`);
+    console.log(`✅ Artifact ${artifactId} verification: ${verified ? 'VALID' : 'INVALID'} (${executionTime}ms)`);
     
     res.json(response);
     
   } catch (error: any) {
     console.error('Verification rift:', error);
     res.status(500).json({
-      error: 'Verification Failed',
-      message: error.message || 'Chaos in verification',
+      error: 'Internal Server Error',
+      message: error.message || 'An unexpected error occurred',
     });
   }
 }
 
 /**
- * Handle GET /api/verify-artifact - return x402 payment info
+ * Handle GET /api/verify-artifact - return x402scan-compatible 402 response
  */
 export function verifyArtifactInfoHandler(req: X402Request, res: Response) {
+  const protocol = req.protocol === 'http' && req.get('host')?.includes('railway.app') ? 'https' : req.protocol;
+  const fullUrl = `${protocol}://${req.get('host')}${req.originalUrl}`;
+  
   res.status(402).json({
     x402Version: 1,
+    error: "Payment Required",
     accepts: [
       {
-        scheme: 'eip3009',
-        network: CONFIG.network.name,
+        scheme: "exact",
+        network: "base",
         maxAmountRequired: CONFIG.pricingMicro.ethereal,
-        resource: 'https://lucid-nebula-agent-production.up.railway.app/api/verify-artifact',
-        description: 'Verify artifact truth',
-        mimeType: 'application/json',
+        resource: fullUrl,
+        description: "Verify artifact zero-knowledge proof",
+        mimeType: "application/json",
         payTo: CONFIG.wallets.base.address,
         maxTimeoutSeconds: 60,
         asset: CONFIG.x402.usdcAddress,
         outputSchema: {
           input: {
-            type: 'http',
-            method: 'POST',
-            bodyType: 'json',
+            type: "http",
+            method: "POST",
+            bodyType: "json",
             bodyFields: {
               artifactId: {
-                type: 'string',
+                type: "string",
                 required: true,
-                description: 'Unique artifact identifier',
+                description: "Unique artifact identifier",
               },
               proof: {
-                type: 'object',
+                type: "object",
                 required: true,
-                description: 'ZK proof to verify',
+                description: "ZK proof to verify",
               },
               publicSignals: {
-                type: 'array',
+                type: "array",
                 required: true,
-                description: 'Public signals for verification',
+                description: "Public signals for verification",
               },
             },
           },
           output: {
-            type: 'object',
-            properties: {
-              success: {
-                type: 'boolean',
-                description: 'Verification request status',
-              },
-              verified: {
-                type: 'boolean',
-                description: 'Whether the proof is valid',
-              },
-              conjureTime: {
-                type: 'number',
-                description: 'Verification duration in milliseconds',
-              },
-              artifactId: {
-                type: 'string',
-                description: 'Verified artifact identifier',
+            success: { type: "boolean" },
+            verified: { type: "boolean", description: "Whether the proof is valid" },
+            metadata: {
+              type: "object",
+              properties: {
+                artifactId: { type: "string" },
+                executionTime: { type: "number" },
+                verifiedAt: { type: "number" },
               },
             },
           },
