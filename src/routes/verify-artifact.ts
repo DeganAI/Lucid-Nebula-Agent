@@ -14,9 +14,6 @@ const VerifyArtifactSchema = z.object({
   publicSignals: z.array(z.string()),
 });
 
-/**
- * Handle POST /api/verify-artifact with payment
- */
 export async function verifyArtifactHandler(req: X402Request, res: Response) {
   try {
     const validation = VerifyArtifactSchema.safeParse(req.body);
@@ -88,9 +85,6 @@ export async function verifyArtifactHandler(req: X402Request, res: Response) {
   }
 }
 
-/**
- * Handle GET /api/verify-artifact - return x402scan-compatible 402 response
- */
 export function verifyArtifactInfoHandler(req: X402Request, res: Response) {
   const protocol = req.protocol === 'http' && req.get('host')?.includes('railway.app') ? 'https' : req.protocol;
   const fullUrl = `${protocol}://${req.get('host')}${req.originalUrl}`;
