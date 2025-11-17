@@ -34,7 +34,7 @@ app.get('/', (req, res) => {
   <meta property="og:title" content="${CONFIG.agent.name}">
   <meta property="og:description" content="Conjure verifiable digital dreams on Base L2">
   <meta property="og:image" content="/og-image.png">
-  <link rel="icon" type="image/png" href="/favicon.ico">
+  <link rel="icon" type="image/svg+xml" href="/favicon.ico">
   <style>
     * {
       margin: 0;
@@ -520,9 +520,8 @@ app.get('/', (req, res) => {
   `);
 });
 
-// Favicon - PNG format with proper caching
+// Favicon - SVG with proper headers
 app.get('/favicon.ico', (req, res) => {
-  // Create a simple 16x16 purple-teal gradient favicon
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
     <defs>
       <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
@@ -573,7 +572,7 @@ app.get('/health', (req, res) => {
 app.get('/api/status', statusHandler);
 app.get('/api/verify', verifyHandler);
 
-// Conjure endpoint - GET returns 402 info, POST requires payment
+// Conjure endpoint - GET returns 402 info, POST with middleware handles payment
 app.get('/api/conjure', conjureInfoHandler);
 app.post(
   '/api/conjure',
@@ -584,7 +583,7 @@ app.post(
   conjureHandler
 );
 
-// Verify artifact endpoint - GET returns 402 info, POST requires payment
+// Verify artifact endpoint - GET returns 402 info, POST with middleware handles payment
 app.get('/api/verify-artifact', verifyArtifactInfoHandler);
 app.post(
   '/api/verify-artifact',
